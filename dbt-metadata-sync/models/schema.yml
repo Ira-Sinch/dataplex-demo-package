@@ -1,0 +1,265 @@
+version: 2
+
+
+# commands to start execution
+# Activate your virtual environment
+# source .venv/Scripts/activate
+#
+# Navigate to proper folder
+# cd data_catalog_demo/dataplex-demo-package/dbt-metadata-sync/
+#
+# Authenticate your application default credentials (ADC)
+# gcloud auth login
+# gcloud auth application-default login
+# 
+# Get logged in access token and print on terminal
+# gcloud auth print-access-token
+# 
+# Set your active target project so gcloud knows where to go
+# gcloud config set project prabha-test
+#
+# Deploy model and harvest metadata
+# dbt run --select sms_delivery_receipts_demo && python scripts/sync_table_aspects.py
+#
+# Permissions
+#- Error: Access Denied: Project prabha-test: User does not have bigquery.jobs.create permission in project prabha-test.
+#  compiled code at target\run\dataplex_dbt_demo\models\customer_demo.sql
+#  Fix: Ensure you are part of "app_sso_gcp_sinch_dataops_delivery_ap" AP group. Then set default project - "gcloud config set project prabha-test"
+#
+# Run chained script
+# bash run_dbt_sync_aspect_and_dp.sh
+
+models:
+  - name: sms_delivery_receipts_demo
+    description: "Sinch Enterprise Data Product for SMS Delivery Receipts (SMS DR EDP)"
+    config:
+      meta:
+        # Matches the Aspect Type ID
+        custom-table-metadata:
+          
+          # 1. Plain Text String (Required)
+          custom-grain: "One record per unique SMS message ID per delivery receipt attempt."
+
+          # 2. Plain Text String (Optional)
+          custom-external-description: "An external-facing log of raw, non-billed SMS delivery metadata used for routing analytics and network performance tracking."
+
+          custom-data-residency-apply: "TRUE"
+
+          # 3. Array of Strings (Required)
+          custom-data-residency-regions:
+            - "EU"  # First record
+            - "US"  # Second record
+
+          # 4. URL String Type Validation (Required)
+          custom-dbt-model-reference: "https://github.com/sinch-dataops/edp-dbt/blob/main/models/sms/sms_data_records_nobill.sql"
+
+          # 5. Rich Text Field - Formatted in HTML (Optional)
+          custom-data-retention: >-
+            <h3>&#128204; Retention Policy</h3>
+            <ul>
+              <li><strong>Active Storage (BigQuery):</strong> Retained for <strong>90 Days</strong> for real-time querying.</li>
+              <li><strong>Cold Archival (GCS):</strong> Retained for <strong>7 Years</strong> in parquet format for regulatory compliance.</li>
+              <li><strong>Purging Rule:</strong> Automatic rolling partition purge executed daily at UTC midnight.</li>
+            </ul>
+
+          # 6. Array of Complex Nested Records (Required)
+          custom-sources:
+            # First Source Record
+            - custom-source-system-name: "Sinch Messaging Gateway (SMS-GW)"
+              
+              custom-data-origin-regions:
+                - "EU"
+
+              # Rich Text Field - Formatted in HTML (Required)
+              custom-source-endpoint: >-
+                <ul>
+                  <li><strong>Kafka Bootstraps:</strong> <code>kafka-prod-01.sinch.com:9092</code></li>
+                  <li><strong>Topic:</strong> <code>outbound.sms.delivery-receipts.v1</code></li>
+                </ul>
+              
+              custom-data-origin-regions:
+                - "EU"  # First record
+                - "US"  # Second record
+
+              custom-source-system-contact-person: "sms-gateway-core-team@sinch.com"
+              
+              # Enum value (Required)
+              custom-ingestion-type: "STREAMING"
+              
+              custom-ingestion-frequency: "Real-time, sub-second streaming ingestion"
+              
+              # Rich Text Field - Formatted in HTML (Required)
+              custom-scope-summary: >-
+                <strong>Included Data:</strong>
+                <ul>
+                  <li>All status receipt events originating from premium network routes.</li>
+                  <li>Outbound client messaging traffic.</li>
+                </ul>
+                <br />
+                <strong>Excluded Data:</strong>
+                <ul>
+                  <li>Internal routing latency test events.</li>
+                  <li><em>Billed</em> network events (routed to the billing ledger instead).</li>
+                </ul>
+
+            # Second Source Record
+            - custom-source-system-name: "Carrier Settlement Database"
+              
+              # Rich Text Field - Formatted in HTML (Required)
+              custom-source-endpoint: "<code>gcp-prod-analytics:carrier_settlement_ledger.v_settlement_flags</code>"
+              
+              custom-source-system-contact-person: "carrier-relations-stewards@sinch.com"
+              
+              # Enum value (Required)
+              custom-ingestion-type: "DATABASE_BATCH"
+              
+              custom-data-origin-regions:
+                - "EU"
+
+              custom-ingestion-frequency: "Daily batch run at 01:00 AM UTC"
+              
+              # Rich Text Field - Formatted in HTML (Required)
+              custom-scope-summary: >-
+                This batch source pulls daily updated, raw zero-cost settlement flags matching route codes.<br />
+                Used purely for <strong>reconciliation mappings</strong>.
+
+    columns:
+      - name: receipt_id
+        description: "inner 1 - Unique identifier for the SMS delivery receipt"
+        config:
+          meta:
+            custom-column-metadata:
+                  custom-business-description: "The unique transaction ID representing a single SMS message."
+                  custom-is-encrypted: "FALSE"
+                  custom-has-pii: "FALSE"
+                  # custom-pii-type is omitted because has-pii is FALSE
+                  custom-constraints:
+                    - custom-constraint: "UNIQUE"
+                  custom-note: >-
+                    <strong>Standard Formatting:</strong> UUIDv4 string. Essential for message deduplication.<br />
+                    <em>Note:</em> Corresponds strictly to gateway routing IDs.
+
+      - name: timestamp
+        description: "The exact time the message status changed"
+      - name: phone_number
+        description: "Recipient MSISDN in E.164 format"
+        config:
+          meta:
+            custom-column-metadata:
+              custom-business-description: "The destination phone number of the customer receiving the SMS."
+              custom-is-encrypted: "TRUE"
+              custom-has-pii: "TRUE"
+              custom-pii-type: "PHONE_NUMBER"  # Required when has-pii is TRUE
+              custom-note: >-
+                <h3>🔒 Privacy Compliance</h3>
+                This column contains <strong>highly-sensitive PII data</strong>.<br />
+                <ul>
+                  <li>Must be kept encrypted at rest using Sinch-managed KMS keys.</li>
+                  <li>Access is restricted to authorized Client Services personnel only.</li>
+                </ul>
+      - name: status
+        description: "Delivery status: DELIVERED, PENDING, FAILED"
+        config:
+          meta:
+            custom-column-metadata:
+              custom-business-description: "Status of message."
+              custom-is-encrypted: "FALSE"
+              custom-has-pii: "FALSE"
+              custom-constraints:
+                - custom-constraint: "FOREIGN_KEY"
+                  custom-related-table: "projects/prabha-test/datasets/dbt_mreis/tables/curated__product__sms_data_records__message_current_status"
+                  custom-related-column: "code"
+              custom-note: >-
+                Before 12-July-2026, rejected messages are identified using nobill_status = REJECTED. 
+                But after this date, Orion updated the message status to REJECTED, if message is actually rejected. 
+                Use if-else to get correct message status while consuming it..
+      - name: error_code
+        description: "error code for failed delivery"
+
+  - name: customer_demo
+    description: "This is my super simple customer table"
+    config:
+      meta:
+        custom-table-metadata:
+          # 1. Plain Text String (Required)
+          custom-grain: "One record per Legal Entity"
+
+          # 2. Plain Text String (Optional)
+          custom-external-description: "One record per customer who does any kind of business with Sinch"
+
+          custom-data-residency-apply: "FALSE"
+          
+          # 3. Array of Strings (Required)
+          custom-data-residency-regions:
+            - "US"  # Second record
+
+          # 4. URL String Type Validation (Required)
+          custom-dbt-model-reference: "https://github.com/sinch-dataops/edp-dbt/blob/main/models/sms/customer_demo.sql"
+
+          # 5. Rich Text Field - Formatted in HTML (Optional)
+          custom-data-retention: >-
+            <h3>Retention Policy</h3>
+            <ul>
+              <li>Records are never deleted.</li>
+              <li>If customer is not active any more then it is marked as retired, but its never deleted.</li>
+            </ul>
+
+          # 6. Array of Complex Nested Records (Required)
+          custom-sources:
+            # First Source Record
+            - custom-source-system-name: "Greenfield CRM"
+              
+              custom-data-origin-regions:
+                - "EU"
+
+              # Rich Text Field - Formatted in HTML (Required)
+              custom-source-endpoint: >-
+                  <ul>
+                    <li>API call over Enterprise integration layer</code></li>
+                  </ul>
+              
+              custom-source-system-contact-person: "someone@sinch.com"
+              
+              # Enum value (Required)
+              custom-ingestion-type: "DATABASE_BATCH"
+              
+              custom-ingestion-frequency: "Every Hour"
+              
+              # Rich Text Field - Formatted in HTML (Required)
+              custom-scope-summary: >-
+                Excluded = Merged customers are excluded from the data pull
+
+    columns:
+      - name: customer_id
+        description: "External unique identifier of customer"
+        config:
+          meta:
+            custom-column-metadata:
+              custom-business-description: "The unique identifier of customer."
+              custom-is-encrypted: "FALSE"
+              custom-has-pii: "FALSE"
+              # custom-pii-type is omitted because has-pii is FALSE
+              custom-constraints:
+                - custom-constraint: "UNIQUE"
+              custom-note: >-
+                    
+
+      - name: customer_name
+        description: "Name of customer"
+        config:
+          meta:
+            custom-column-metadata:
+              custom-business-description: "Fill Legal Name of customer"
+              custom-is-encrypted: "FALSE"
+              custom-has-pii: "FALSE"
+
+      - name: phone_number
+        description: "Phone number of responsible contact for this customer"
+        config:
+          meta:
+            custom-column-metadata:
+              custom-business-description: "POC phone number"
+              custom-is-encrypted: "FALSE"
+              custom-has-pii: "TRUE"
+              custom-pii-type: "PHONE_NUMBER"
+              

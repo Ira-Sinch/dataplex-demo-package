@@ -1,0 +1,85 @@
+apiVersion: kc.sinch.com/v1
+kind: DataProduct
+
+metadata:
+  # The primary key for the Data Product in Knowledge Catalog.
+  id: customer-master
+  state: active
+  #state: deleted
+
+  region: eu
+
+spec:
+  displayName: "PoC via script - Customer Master"
+
+  description: >
+    Core master data product containing enterprise customer identifiers,
+    company names, and primary contact details (such as phone numbers).
+    Serves as the central source of truth for customer account resolution.
+
+  ownerEmails:
+    - prabhaarya@google.com
+
+  accessApprovalConfig:
+    approverEmails:
+      - prabhaarya@google.com
+
+  # List the dbt model names. Ensure this matches your actual dbt model name.
+  assets:
+    - dbtModel: customer_demo
+
+  # --- All aspects, both custom and system, are defined here ---
+  aspects:
+
+    # OOB System Aspect for the main overview page
+    overview:
+      content: |
+        <h2>Overview</h2>
+        <p>Core master data product containing enterprise customer identifiers, company names, and primary contact details. Serves as the central source of truth for downstream revenue allocation and account resolution.</p>
+        <h3>What questions can this data product answer?</h3>
+        <ul>
+          <li>What is the official Sinch customer ID for a specific enterprise client?</li>
+          <li>What is the primary contact phone number on file for a specific customer?</li>
+          <li>How many active enterprise customers do we currently have?</li>
+        </ul>
+
+    # OOB System Aspect for recommended queries
+    queries:
+      userManaged: true
+      queries:
+        - description: "Lookup customer details by Company Name"
+          sql: |
+            SELECT customer_id, customer_name, phone_number
+            FROM {{ ref('customer_demo') }}
+            WHERE customer_name LIKE '%Microsoft%'
+            LIMIT 10
+          source: USER
+        - description: "Count total active customers"
+          sql: |
+            SELECT COUNT(DISTINCT customer_id) AS total_active_customers
+            FROM {{ ref('customer_demo') }}
+          source: USER
+
+    # OOB System Aspect for SLAs
+    refresh-cadence:
+      frequency: Daily
+      refreshTime: "01:00:00Z"
+
+    # Your custom aspects
+    custom-data-product-profile:
+      custom-data-product-type: ENTERPRISE
+      custom-domain: CUSTOMER
+      custom-external-references:
+        - custom-document-type: DESIGN_DOC
+          custom-document-link: https://sinchenterprise.atlassian.net/wiki/spaces/OSD/pages/1234567890/EDP+-+Customer+Master
+      custom-contacts:
+        - custom-role: DATA_PRODUCT_OWNER
+          custom-name: Prabha Arya
+          custom-email-id: prabhaarya@google.com
+        - custom-role: DATA_ENGINEER
+          custom-name: Prabha Arya
+          custom-email-id: prabhaarya@google.com
+
+    custom-data-product-status:
+      custom-lifecycle-status: IN_DEVELOPMENT
+      custom-maturity-level: 1_FOUNDATIONAL

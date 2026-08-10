@@ -1,0 +1,25 @@
+name: 'dataplex_dbt_demo'
+version: '1.0.0'
+config-version: 2
+
+profile: 'dataplex_demo'
+
+model-paths: ["models"]
+
+models:
+  dataplex_dbt_demo:
+    +materialized: table
+    +persist_docs:
+      relation: true
+      columns: true
+
+  customer_demo:
+    +materialized: table
+    +persist_docs:
+      relation: true
+      columns: true
+
+  customer_summary:
+    +persist_docs:
+      relation: true
+      columns: true

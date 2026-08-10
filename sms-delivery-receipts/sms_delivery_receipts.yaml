@@ -1,0 +1,18 @@
+rules:
+  - column: receipt_id
+    dimension: COMPLETENESS
+    nonNullExpectation: {}
+    threshold: 1.0
+  - column: status
+    dimension: VALIDITY
+    setExpectation:
+      values:
+        - "DELIVERED"
+        - "PENDING"
+        - "FAILED"
+    threshold: 1.0
+  - column: phone_number
+    dimension: VALIDITY
+    regexExpectation:
+      regex: '^\+[1-9]\d{1,14}$'
+    threshold: 1.0

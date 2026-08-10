@@ -1,0 +1,140 @@
+version: 2
+
+models:
+  - name: customer_summary
+    description: "Aggregated customer details and total metrics for order summaries."
+    config:
+      meta:
+        # Matches the Aspect Type ID
+        custom-table-metadata:
+          
+          # 1. Plain Text String (Required)
+          custom-grain: "One record per unique Customer ID."
+          
+          # 2. Plain Text String (Optional)
+          custom-external-description: "An aggregated business-level view summarizing total transaction volumes and total revenue generated per customer."
+          custom-data-residency-apply: "FALSE"
+          
+          # 3. Array of Strings (Required)
+          custom-data-residency-regions:
+            - "EU"
+            - "US"
+            
+          # 4. URL String Type Validation (Required)
+          custom-dbt-model-reference: "https://github.com/sinch-dataops/edp-dbt/blob/main/models/sms/customer_summary.sql"
+          
+          # 5. [...](asc_slot://start-slot-5)Rich Text Field - Formatted in HTML (Optional)
+          custom-data-retention: >-
+            <h3>&#128204; Retention Policy</h3>
+            <ul>
+              <li><strong>Active Storage (BigQuery):</strong> Retained in perpetuity as core master reporting reference data.</li>
+              <li><strong>Aggregations:</strong> Re-calculated hourly to reflect active billing cycles.</li>
+            </ul>
+            
+          # 6. [...](asc_slot://start-slot-7)Array of Complex Nested Records (Required)
+          custom-sources:
+            # First Source Record
+            - custom-source-system-name: "Greenfield CRM"
+              custom-data-origin-regions:
+                - "EU"
+              # Rich Text Field - Formatted in HTML (Required)
+              custom-source-endpoint: >-
+                <ul>
+                  <li><strong>Endpoint:</strong> <code>crm.api.sinch.com/v1/customers</code></li>
+                </ul>
+              custom-source-system-contact-person: "customer-success-ops@sinch.com"
+              # Enum value (Required)
+              custom-ingestion-type: "DATABASE_BATCH"
+              custom-ingestion-frequency: "Every Hour"
+              # Rich Text Field - Formatted in HTML (Required)
+              custom-scope-summary: >-
+                <strong>Included Data:</strong>
+                <ul>
+                  <li>All active corporate client profiles.</li>
+                </ul>
+                <strong>Excluded Data:</strong>
+                <ul>
+                  <li>Internal testing customer IDs and sandboxed developer accounts.</li>
+                </ul>
+
+            # [...](asc_slot://start-slot-9)Second Source Record
+            - custom-source-system-name: "Sinch Core Billing Ledger"
+              custom-data-origin-regions:
+                - "EU"
+                - "US"
+              # Rich Text Field - Formatted in HTML (Required)
+              custom-source-endpoint: >-
+                <ul>
+                  <li><strong>BigQuery View:</strong> <code>gcp-prod-analytics:billing_ledger.[...](asc_slot://start-slot-11)v_order_entries</code></li>
+                </ul>
+              custom-source-system-contact-person: "billing-platform-stewards@sinch.com"
+              # Enum value (Required)
+              custom-ingestion-type: "DATABASE_BATCH"
+              custom-ingestion-frequency: "Daily batch run at 01:00 AM UTC"
+              # Rich Text Field - Formatted in HTML (Required)
+              custom-scope-summary: >-
+                Daily transactional aggregations pulling processed and completed financial transactions.<br />
+                Used for <strong>revenue reconciliation and customer health mapping</strong>.
+
+    columns:
+      - name: customer_id
+        description: "External unique identifier of the customer"
+        config:
+          meta:
+            custom-column-metadata:
+              custom-business-description: "The unique ID representing the corporate client."
+              custom-is-encrypted: "FALSE"
+              custom-has-pii: "FALSE"
+              custom-constraints:
+                - custom-constraint: "UNIQUE"
+              custom-note: >-
+                <strong>Validation check:</strong> Maps precisely to the CRM primary identifier.<br />
+                Must not contain null values.
+
+      - name: customer_name
+        description: "Legal name of the customer"
+        config:
+          meta:
+            custom-column-metadata:
+              custom-business-description: "Full registered business legal entity name."
+              custom-is-encrypted: "FALSE"
+              custom-has-pii: "FALSE"
+              custom-note: >-
+                Used for generation of consolidated monthly client invoice headers.
+
+      - name: phone_number
+        description: "Contact phone number for the client"
+        config:
+          meta:
+            custom-column-metadata:
+              custom-business-description: "Primary point of contact phone number."
+              custom-is-encrypted: "FALSE"
+              custom-has-pii: "TRUE"
+              custom-pii-type: "PHONE_NUMBER"  # Required when has-pii is TRUE
+              custom-note: >-
+                <h3>🔒 Privacy Compliance</h3>
+                This column contains <strong>sensitive PII data</strong>.<br />
+                <ul>
+                  <li>Usage must comply with GDPR guidelines.</li>
+                  <li>Do not expose in public business analytics reports.</li>
+                </ul>
+
+      - name: total_orders
+        description: "Aggregated count of lifetime orders placed by the customer"
+        config:
+          meta:
+            custom-column-metadata:
+              custom-business-description: "Sum of unique transaction IDs found in the billing system."
+              custom-is-encrypted: "FALSE"
+              custom-has-pii: "FALSE"
+
+      - name: total_amount_spent
+        description: "Aggregated total amount spent by the customer in EUR"
+        config:
+          meta:
+            custom-column-metadata:
+              custom-business-description: "Total financial volume calculated as the sum of order amounts."
+              custom-is-encrypted: "FALSE"
+              custom-has-pii: "FALSE"
+              custom-note: >-
+                Defaults to <code>0.00</code> if a customer has zero order history.

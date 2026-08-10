@@ -1,0 +1,39 @@
+version: 2
+
+models:
+  - name: orders
+    description: "A hard-coded simple sample table for customer orders."
+    columns:
+      - name: order_id
+        description: "The unique identifier for each order."
+        data_tests:
+          - unique
+          - not_null
+
+        config:
+          meta:
+            custom-column-metadata:
+              custom-business-description: "Order id - business desc."
+              custom-is-encrypted: "FALSE"
+              custom-has-pii: "FALSE"
+             
+      - name: customer_id
+        description: "The identifier for the customer who placed the order."
+        data_tests:
+          - not_null
+        config:
+          meta:
+            custom-column-metadata:
+              custom-business-description: "Order id - business desc."
+              custom-is-encrypted: "FALSE"
+              custom-has-pii: "FALSE"
+              custom-constraints:
+                - custom-constraint: "FOREIGN_KEY" # Must exactly match the Enum value
+                  custom-related-table: "projects/prabha-test/datasets/dbt_mreis/tables/curated__product__customer__customer_master"
+                  custom-related-column: "customer_id"
+
+      - name: order_amount
+        description: "The total monetary value of the order."
+
+      - name: order_date
+        description: "The date the order was placed."

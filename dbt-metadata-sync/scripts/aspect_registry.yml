@@ -1,0 +1,68 @@
+# =============================================================================
+# aspect_registry.yml
+# -----------------------------------------------------------------------------
+# ADMIN-OWNED FILE. Developers never edit this.
+#
+# This is the ONLY place that needs to change when a new aspect type is added
+# to Knowledge Catalog (e.g. you create a new custom aspect type, or you want
+# to expose another system aspect like `contacts` or `schema-join`).
+#
+# Each entry maps a short, human-friendly "alias" (what developers type in
+# their data_products/*.yml under `spec.aspects:`) to:
+#   - aspectType : the full KC aspect type resource name
+#   - keyProject : the project segment used to build the aspect map key when
+#                  patching an entry, i.e. "{keyProject}.{location}.{alias_or_id}"
+#   - aspectId   : (optional) the aspect type ID segment in the key, if it
+#                  differs from the alias (rare - only needed if you want a
+#                  friendlier alias than the real aspect type ID)
+#   - location   : almost always "global" - included for completeness
+#
+# The sync script does zero validation of the `data:` payload shape beyond
+# what KC itself enforces via its own API error messages. That keeps this
+# registry - and the script - completely decoupled from the aspect type's
+# internal schema. If you need field-level validation, see the note at the
+# bottom of this file (fast-follow idea, not built into v1).
+# =============================================================================
+
+aspects:
+
+  # --- Custom aspect types (owned by us, in our own project) ---------------
+  custom-data-product-profile:
+    aspectType: projects/prabha-test/locations/global/aspectTypes/custom-data-product-profile
+    keyProject: prabha-test
+    location: global
+
+  custom-data-product-status:
+    aspectType: projects/prabha-test/locations/global/aspectTypes/custom-data-product-status
+    keyProject: prabha-test
+    location: global
+
+  custom-table-metadata:
+    aspectType: projects/prabha-test/locations/global/aspectTypes/custom-table-metadata
+    keyProject: prabha-test
+    location: global
+
+  custom-column-metadata:
+    aspectType: projects/prabha-test/locations/global/aspectTypes/custom-column-metadata
+    keyProject: prabha-test
+    location: global
+
+  data-sensitivity:
+    aspectType: projects/prabha-test/locations/global/aspectTypes/data-sensitivity
+    keyProject: prabha-test
+    location: global
+
+  # --- System aspect types (owned by Google) --------------------------------
+  # NOTE: confirmed by GET-ing these aspect types directly - do not guess the
+  # keyProject for a new system aspect, fetch it and confirm before adding here.
+  overview:
+    aspectType: projects/dataplex-types/locations/global/aspectTypes/overview
+    keyProject: dataplex-types
+    location: global
+
+  queries:
+    aspectType: projects/655216118709/locations/global/aspectTypes/queries
+    keyProject: "655216118709"
+    location: global
+
+# ---------------

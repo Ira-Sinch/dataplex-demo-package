@@ -1,0 +1,66 @@
+# =============================================================================
+# DATA PRODUCT CONFIG TEMPLATE
+# =============================================================================
+# One file = one Data Product in Knowledge Catalog.
+# The sync script will make KC match what's in this file.
+# =============================================================================
+
+apiVersion: kc.sinch.com/v1
+kind: DataProduct
+
+metadata:
+  # KC's data_product_id. Must be lowercase, start with a letter, <= 63 chars.
+  # This is the PRIMARY KEY and is IMMUTABLE once created.
+  id: my-new-data-product
+
+  # 'active'  -> DP is created/updated in KC.
+  # 'deleted' -> DP is REMOVED from KC on the next sync run.
+  state: active
+
+spec:
+  displayName: "My New Data Product"
+
+  description: >
+    A one or two-sentence, business-friendly description of what this data
+    product represents and what it is used for.
+
+  ownerEmails:
+    - your-team-dl@sinch.com
+
+  accessApprovalConfig:
+    approverEmails:
+      - your-team-dl@sinch.com
+
+  # List the exact dbt MODEL NAMES. The script will find their real BQ tables.
+  assets:
+    - dbtModel: my_dbt_model_one
+    - dbtModel: my_dbt_model_two
+
+  # Generic block for all aspects. Add any new aspect types here.
+  # The key must match the Aspect Type ID in GCP.
+  aspects:
+
+    # OOB System Aspect for the main overview page
+    overview:
+      content: |
+        <h2>Overview</h2>
+        <p>Describe what this data product contains and what questions it answers.</p>
+
+    # OOB System Aspect for recommended queries
+    queries:
+      userManaged: true # This must be true for user-provided queries
+      queries:
+        - description: "Example: Get the 10 most recent records"
+          sql: |
+            SELECT * FROM {{ ref('my_dbt_model_one') }} LIMIT 10
+          source: USER # This must be USER
+
+    # Your custom aspects
+    custom-data-product-profile:
+      custom-data-product-type: ANALYTICAL
+      custom-domain: MARKETING
+      # ... other profile fields
+
+    custom-data-product-status:
+      custom-lifecycle-status: IN_DEVELOPMENT
+      custom-maturity-level: 1_FOUNDATIONAL

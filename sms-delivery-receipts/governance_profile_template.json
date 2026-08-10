@@ -1,0 +1,56 @@
+{
+  "name": "data-product-governance-profile",
+  "type": "record",
+  "recordFields": [
+    {
+      "name": "data_owner",
+      "type": "string",
+      "annotations": {
+        "displayName": "Data Owner",
+        "description": "The business owner of this data product."
+      },
+      "index": 1
+    },
+    {
+      "name": "data_steward",
+      "type": "string",
+      "annotations": {
+        "displayName": "Data Steward",
+        "description": "The technical steward responsible for maintaining this data product."
+      },
+      "index": 2
+    },
+    {
+      "name": "lifecycle_status",
+      "type": "enum",
+      "annotations": {
+        "displayName": "Lifecycle Status",
+        "description": "Current status of the data product."
+      },
+      "index": 3,
+      "enumValues": [
+        { "name": "DEV", "index": 1 },
+        { "name": "PROD", "index": 2 },
+        { "name": "DEPRECATED", "index": 3 }
+      ]
+    },
+    {
+      "name": "sla_tier",
+      "type": "String",
+      "annotations": {
+        "displayName": "SLA Tier",
+        "description": "SLA Tier Desc"
+      },
+      "index": 4
+    },
+    {
+      "name": "dq_status",
+      "type": "String",
+      "annotations": {
+        "displayName": "DQ Status",
+        "description": "Data Quality Status"
+      },
+      "index": 5
+    }
+  ]
+}

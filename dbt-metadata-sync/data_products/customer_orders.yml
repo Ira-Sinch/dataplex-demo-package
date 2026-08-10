@@ -1,0 +1,75 @@
+apiVersion: kc.sinch.com/v1
+kind: DataProduct
+metadata:
+  # The primary key for the Data Product in the Sinch Knowledge Catalog.
+  id: customer-summary
+  state: active
+  #state: deleted
+  region: eu
+spec:
+  displayName: "Customer summary metrics view"
+  description: >
+    Analytical Data Product aggregating customer-level order history and metrics. 
+    It synthesizes customer profile details with aggregated billing metrics to 
+    provide total volumes and lifetime revenue summaries.
+  ownerEmails:
+    - prabhaarya@google.com
+  accessApprovalConfig:
+    approverEmails:
+      - prabhaarya@google.com
+  # List the dbt model names. Ensures this matches your actual dbt model view name.
+  assets:
+    - dbtModel: customer_summary
+    #- dbtModel: orders_wrong
+    #- dbtModel: customer_demo
+    #- dbtModel: orders
+  
+  # --- All aspects, both custom and system, are defined here ---
+  aspects:
+    # OOB System Aspect for the main overview page (HTML formatted)
+    overview:
+      content: |
+        <h2>Overview</h2>
+        <p>This data product provides an aggregated high-level business view of our customers and their corresponding ordering history. It aggregates transaction counts and total spent metrics from the core billing ledger and combines them with master customer records.</p>
+        <h3>What questions can this data product answer?</h3>
+        <ul>
+          <li>What is the total amount spent (revenue generated) by a specific enterprise customer?</li>
+          <li>How many total completed orders has a client placed with us?</li>
+          <li>Which customers are contributing the highest revenue volume?</li>
+        </ul>
+        
+    # OOB System Aspect for recommended queries
+    queries:
+      userManaged: true
+      queries:
+        - description: "Retrieve total financial summaries for all customers"
+          sql: |
+            SELECT customer_id, customer_name, total_orders, total_amount_spent
+            FROM {{ ref('customer_summary') }}
+            ORDER BY total_amount_spent DESC
+          source: USER
+        - description: "Query a specific customer's spending profile"
+          sql: |
+            SELECT customer_name, phone_number, total_orders, total_amount_spent
+            FROM {{ ref('customer_summary') }}
+            WHERE customer_id = 'C101'
+          source: USER
+
+    # Your custom aspects
+    custom-data-product-profile:
+      custom-data-product-type: ANALYTICAL
+      custom-domain: CUSTOMER
+      custom-external-references:
+        - custom-document-type: DESIGN_DOC
+          custom-document-link: https://drive.google.com/corp/drive/folders/1MF8G7h09IDiJe2oza3WLsYR0Rjyga8uF
+      custom-contacts:
+        - custom-role: DATA_PRODUCT_OWNER
+          custom-name: Prabha Arya
+          custom-email-id: prabhaarya@google.com
+        - custom-role: DATA_ENGINEER
+          custom-name: Prabha Arya
+          custom-email-id: prabhaarya@google.com
+          
+    custom-data-product-status:
+      custom-lifecycle-status: CERTIFIED
+      custom-maturity-level: 1_FOUNDATIONAL

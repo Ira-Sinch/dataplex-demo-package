@@ -1,0 +1,23 @@
+rules:
+  - column: session_id
+    dimension: COMPLETENESS
+    nonNullExpectation: {}
+    threshold: 1.0
+  - column: status
+    dimension: VALIDITY
+    setExpectation:
+      values:
+        - "CONNECTED"
+        - "DISCONNECTED"
+        - "FAILED"
+    threshold: 1.0
+  - column: caller_number
+    dimension: VALIDITY
+    regexExpectation:
+      regex: '^\+[1-9]\d{1,14}$'
+    threshold: 1.0
+  - column: callee_number
+    dimension: VALIDITY
+    regexExpectation:
+      regex: '^\+[1-9]\d{1,14}$'
+    threshold: 1.0

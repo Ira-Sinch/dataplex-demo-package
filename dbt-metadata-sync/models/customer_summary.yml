@@ -21,7 +21,7 @@ models:
             - "US"
             
           # 4. URL String Type Validation (Required)
-          custom-dbt-model-reference: "https://github.com/sinch-dataops/edp-dbt/blob/main/models/sms/customer_summary.sql"
+          custom-dbt-model-reference: "https://github.com/customer-dataops/edp-dbt/blob/main/models/sms/customer_summary.sql"
           
           # 5. [...](asc_slot://start-slot-5)Rich Text Field - Formatted in HTML (Optional)
           custom-data-retention: >-
@@ -40,9 +40,9 @@ models:
               # Rich Text Field - Formatted in HTML (Required)
               custom-source-endpoint: >-
                 <ul>
-                  <li><strong>Endpoint:</strong> <code>crm.api.sinch.com/v1/customers</code></li>
+                  <li><strong>Endpoint:</strong> <code>crm.api.customer.com/v1/customers</code></li>
                 </ul>
-              custom-source-system-contact-person: "customer-success-ops@sinch.com"
+              custom-source-system-contact-person: "customer-success-ops@customer.com"
               # Enum value (Required)
               custom-ingestion-type: "DATABASE_BATCH"
               custom-ingestion-frequency: "Every Hour"
@@ -58,7 +58,7 @@ models:
                 </ul>
 
             # [...](asc_slot://start-slot-9)Second Source Record
-            - custom-source-system-name: "Sinch Core Billing Ledger"
+            - custom-source-system-name: "Core Billing Ledger"
               custom-data-origin-regions:
                 - "EU"
                 - "US"
@@ -67,7 +67,7 @@ models:
                 <ul>
                   <li><strong>BigQuery View:</strong> <code>gcp-prod-analytics:billing_ledger.[...](asc_slot://start-slot-11)v_order_entries</code></li>
                 </ul>
-              custom-source-system-contact-person: "billing-platform-stewards@sinch.com"
+              custom-source-system-contact-person: "billing-platform-stewards@customer.com"
               # Enum value (Required)
               custom-ingestion-type: "DATABASE_BATCH"
               custom-ingestion-frequency: "Daily batch run at 01:00 AM UTC"

@@ -22,7 +22,7 @@ echo "Step 1: Provisioning Isolated Corporate Entry Group Container [${ENTRY_GRO
 gcloud dataplex entry-groups create ${ENTRY_GROUP} \
     --project=${PROJECT_ID} \
     --location=${LOCATION} \
-    --description="Logical entry group holding Sinch Enterprise Data Products (EDP)" || echo "Group already exists, continuing..."
+    --description="Logical entry group holding Enterprise Data Products (EDP)" || echo "Group already exists, continuing..."
 
 echo "Step 2: Registering Data Product Entry & Binding Governance Profile Metadata..."
 # Delete old entry safely if it exists, then recreate

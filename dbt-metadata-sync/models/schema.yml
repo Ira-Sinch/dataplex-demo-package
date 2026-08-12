@@ -24,14 +24,14 @@ version: 2
 # Permissions
 #- Error: Access Denied: Project prabha-test: User does not have bigquery.jobs.create permission in project prabha-test.
 #  compiled code at target\run\dataplex_dbt_demo\models\customer_demo.sql
-#  Fix: Ensure you are part of "app_sso_gcp_sinch_dataops_delivery_ap" AP group. Then set default project - "gcloud config set project prabha-test"
+#  Fix: Ensure you are part of "app_sso_gcp_dataops_delivery_ap" AP group. Then set default project - "gcloud config set project prabha-test"
 #
 # Run chained script
 # bash run_dbt_sync_aspect_and_dp.sh
 
 models:
   - name: sms_delivery_receipts_demo
-    description: "Sinch Enterprise Data Product for SMS Delivery Receipts (SMS DR EDP)"
+    description: "Enterprise Data Product for SMS Delivery Receipts (SMS DR EDP)"
     config:
       meta:
         # Matches the Aspect Type ID
@@ -51,7 +51,7 @@ models:
             - "US"  # Second record
 
           # 4. URL String Type Validation (Required)
-          custom-dbt-model-reference: "https://github.com/sinch-dataops/edp-dbt/blob/main/models/sms/sms_data_records_nobill.sql"
+          custom-dbt-model-reference: "https://github.com/customer-dataops/edp-dbt/blob/main/models/sms/sms_data_records_nobill.sql"
 
           # 5. Rich Text Field - Formatted in HTML (Optional)
           custom-data-retention: >-
@@ -65,7 +65,7 @@ models:
           # 6. Array of Complex Nested Records (Required)
           custom-sources:
             # First Source Record
-            - custom-source-system-name: "Sinch Messaging Gateway (SMS-GW)"
+            - custom-source-system-name: "Customer Messaging Gateway (SMS-GW)"
               
               custom-data-origin-regions:
                 - "EU"
@@ -73,7 +73,7 @@ models:
               # Rich Text Field - Formatted in HTML (Required)
               custom-source-endpoint: >-
                 <ul>
-                  <li><strong>Kafka Bootstraps:</strong> <code>kafka-prod-01.sinch.com:9092</code></li>
+                  <li><strong>Kafka Bootstraps:</strong> <code>kafka-prod-01.customer.com:9092</code></li>
                   <li><strong>Topic:</strong> <code>outbound.sms.delivery-receipts.v1</code></li>
                 </ul>
               
@@ -81,7 +81,7 @@ models:
                 - "EU"  # First record
                 - "US"  # Second record
 
-              custom-source-system-contact-person: "sms-gateway-core-team@sinch.com"
+              custom-source-system-contact-person: "sms-gateway-core-team@customer.com"
               
               # Enum value (Required)
               custom-ingestion-type: "STREAMING"
@@ -108,7 +108,7 @@ models:
               # Rich Text Field - Formatted in HTML (Required)
               custom-source-endpoint: "<code>gcp-prod-analytics:carrier_settlement_ledger.v_settlement_flags</code>"
               
-              custom-source-system-contact-person: "carrier-relations-stewards@sinch.com"
+              custom-source-system-contact-person: "carrier-relations-stewards@customer.com"
               
               # Enum value (Required)
               custom-ingestion-type: "DATABASE_BATCH"
@@ -154,7 +154,7 @@ models:
                 <h3>🔒 Privacy Compliance</h3>
                 This column contains <strong>highly-sensitive PII data</strong>.<br />
                 <ul>
-                  <li>Must be kept encrypted at rest using Sinch-managed KMS keys.</li>
+                  <li>Must be kept encrypted at rest using customer-managed KMS keys.</li>
                   <li>Access is restricted to authorized Client Services personnel only.</li>
                 </ul>
       - name: status
@@ -185,7 +185,7 @@ models:
           custom-grain: "One record per Legal Entity"
 
           # 2. Plain Text String (Optional)
-          custom-external-description: "One record per customer who does any kind of business with Sinch"
+          custom-external-description: "One record per customer who does any kind of business with the customer"
 
           custom-data-residency-apply: "FALSE"
           
@@ -194,7 +194,7 @@ models:
             - "US"  # Second record
 
           # 4. URL String Type Validation (Required)
-          custom-dbt-model-reference: "https://github.com/sinch-dataops/edp-dbt/blob/main/models/sms/customer_demo.sql"
+          custom-dbt-model-reference: "https://github.com/customer-dataops/edp-dbt/blob/main/models/sms/customer_demo.sql"
 
           # 5. Rich Text Field - Formatted in HTML (Optional)
           custom-data-retention: >-
@@ -218,7 +218,7 @@ models:
                     <li>API call over Enterprise integration layer</code></li>
                   </ul>
               
-              custom-source-system-contact-person: "someone@sinch.com"
+              custom-source-system-contact-person: "someone@customer.com"
               
               # Enum value (Required)
               custom-ingestion-type: "DATABASE_BATCH"

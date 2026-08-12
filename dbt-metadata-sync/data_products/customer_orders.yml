@@ -1,7 +1,7 @@
-apiVersion: kc.sinch.com/v1
+apiVersion: kc.customer.com/v1
 kind: DataProduct
 metadata:
-  # The primary key for the Data Product in the Sinch Knowledge Catalog.
+  # The primary key for the Data Product in the Dataplex Knowledge Catalog.
   id: customer-summary
   state: active
   #state: deleted

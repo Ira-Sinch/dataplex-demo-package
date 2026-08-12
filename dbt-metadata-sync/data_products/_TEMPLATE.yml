@@ -5,7 +5,7 @@
 # The sync script will make KC match what's in this file.
 # =============================================================================
 
-apiVersion: kc.sinch.com/v1
+apiVersion: kc.customer.com/v1
 kind: DataProduct
 
 metadata:
@@ -25,11 +25,11 @@ spec:
     product represents and what it is used for.
 
   ownerEmails:
-    - your-team-dl@sinch.com
+    - your-team-dl@customer.com
 
   accessApprovalConfig:
     approverEmails:
-      - your-team-dl@sinch.com
+      - your-team-dl@customer.com
 
   # List the exact dbt MODEL NAMES. The script will find their real BQ tables.
   assets:

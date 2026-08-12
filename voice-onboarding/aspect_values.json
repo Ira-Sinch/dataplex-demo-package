@@ -2,7 +2,7 @@
   "dataplex-types.global.generic": {
     "data": {
       "type": "Data Product",
-      "system": "Sinch EDP Store"
+      "system": "Customer EDP Store"
     }
   },
   "prabha-test.europe-west3.data-product-governance-profile": {

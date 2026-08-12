@@ -1,4 +1,4 @@
-apiVersion: kc.sinch.com/v1
+apiVersion: kc.customer.com/v1
 kind: DataProduct
 
 metadata:
@@ -17,7 +17,7 @@ spec:
   description: >
     Raw, granular event data for SMS (Nova) usage. Represents the Data Record (DR),
     an aggregated view of the underlying Call Data Record (CDR). Each data record
-    represents 1 SMS sent by a Sinch client to a recipient handset.
+    represents 1 SMS sent by a customer to a recipient handset.
 
   ownerEmails:
     - prabhaarya@google.com
@@ -40,7 +40,7 @@ spec:
     overview:
       content: |
         <h2>Overview</h2>
-        <p>Raw, granular event data for SMS (Nova) usage. This represents Data Record (DR), an aggregated view of Call Data Record (CDR). Each data record represents 1 SMS sent by a Sinch client to their client (mobile handset).</p>
+        <p>Raw, granular event data for SMS (Nova) usage. This represents Data Record (DR), an aggregated view of Call Data Record (CDR). Each data record represents 1 SMS sent by a customer to their client (mobile handset).</p>
         <h3>What questions can this data product answer?</h3>
         <ul>
           <li>Which messages failed, and to which countries.</li>

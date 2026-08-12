@@ -10,7 +10,7 @@ It covers two key enterprise scenarios:
 
 ## 📖 Scenario Context & Architecture
 
-![Dataplex Catalog Governance Architecture](./data_catalog.png)
+![Dataplex Catalog Governance Architecture](./System%20Architecture.png)
 
 ---
 
